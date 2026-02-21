@@ -43,7 +43,7 @@ resource "aws_internet_gateway" "igw" {
 ###############################################################################
 resource "aws_subnet" "public" {
   count                   = local.create_public_subnets ? length(var.public_subnet_cidrs) : 0
-  vpc_id                  = aws_vpc.main[count.index].id
+  vpc_id                  = aws_vpc.main[0].id
   cidr_block              = var.public_subnet_cidrs[count.index]
   availability_zone       = var.availability_zones[count.index % length(var.availability_zones)]
   map_public_ip_on_launch = true
@@ -56,7 +56,7 @@ resource "aws_subnet" "public" {
 
 resource "aws_route_table" "public" {
   count  = local.create_public_subnets ? 1 : 0
-  vpc_id = aws_vpc.main[count.index].id
+  vpc_id = aws_vpc.main[0].id
 
   route {
     cidr_block = "0.0.0.0/0"
@@ -95,7 +95,7 @@ resource "aws_nat_gateway" "main" {
 ###############################################################################
 resource "aws_subnet" "private" {
   count             = local.create_private_subnets ? length(var.private_subnet_cidrs) : 0
-  vpc_id            = aws_vpc.main[count.index].id
+  vpc_id            = aws_vpc.main[0].id
   cidr_block        = var.private_subnet_cidrs[count.index]
   availability_zone = var.availability_zones[count.index % length(var.availability_zones)]
 
@@ -107,7 +107,7 @@ resource "aws_subnet" "private" {
 
 resource "aws_route_table" "private" {
   count  = local.create_private_subnets ? 1 : 0
-  vpc_id = aws_vpc.main[count.index].id
+  vpc_id = aws_vpc.main[0].id
 
   # Only add default route if NAT exists; otherwise private subnets are isolated.
   dynamic "route" {
